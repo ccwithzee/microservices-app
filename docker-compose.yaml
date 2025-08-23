@@ -1,0 +1,77 @@
+version: "3.9"
+
+services:
+  users:
+    build: ./services/users
+    container_name: users
+    environment:
+      ORDERS_BASE_URL: http://orders:8080
+      PAYMENTS_BASE_URL: http://payments:8080
+      API_GATEWAY_BASE_URL: http://api-gateway:8080
+    ports:
+      - "8000:8080"
+    volumes:
+      - users-data:/app  # persists the SQLite database
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  orders:
+    build: ./services/orders
+    container_name: orders
+    environment:
+      USERS_BASE_URL: http://users:8080
+      PAYMENTS_BASE_URL: http://payments:8080
+      API_GATEWAY_BASE_URL: http://api-gateway:8080
+    ports:
+      - "8001:8080"
+    volumes:
+      - orders-data:/app  # persists the orders database
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  payments:
+    build: ./services/payments
+    container_name: payments
+    environment:
+      USERS_BASE_URL: http://users:8080
+      ORDERS_BASE_URL: http://orders:8080
+      API_GATEWAY_BASE_URL: http://api-gateway:8080
+    ports:
+      - "8002:8080"
+    volumes:
+      - payments-data:/app  # persists the payments database
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  api-gateway:
+    build: ./services/api-gateway
+    container_name: api-gateway
+    environment:
+      USERS_BASE_URL: http://users:8080
+      ORDERS_BASE_URL: http://orders:8080
+      PAYMENTS_BASE_URL: http://payments:8080
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+volumes:
+  users-data:
+  orders-data:
+  payments-data:
