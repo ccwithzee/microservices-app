@@ -1,10 +1,11 @@
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import List
 from sqlalchemy import Column, Integer, String, create_engine
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 import databases
 import os
+from contextlib import asynccontextmanager
 
 # Ensure data directory exists
 os.makedirs("./data", exist_ok=True)
@@ -35,18 +36,16 @@ class OrderUpdate(BaseModel):
 
 class OrderResponse(OrderCreate):
     id: int
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)  # ✅ replaces orm_mode
 
-app = FastAPI()
-
-@app.on_event("startup")
-async def startup():
+# ✅ use new lifespan instead of deprecated @on_event
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     await database.connect()
-
-@app.on_event("shutdown")
-async def shutdown():
+    yield
     await database.disconnect()
+
+app = FastAPI(lifespan=lifespan)
 
 @app.post("/orders/", response_model=OrderResponse, status_code=201)
 async def create_order(order: OrderCreate):

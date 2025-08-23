@@ -13,6 +13,8 @@ EXPOSE 8080
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
 
 FROM base AS test
+WORKDIR /app
+ENV PYTHONPATH=/app
 COPY app ./app
 COPY tests ./tests
 CMD ["pytest", "-q"]

@@ -21,7 +21,14 @@ jobs:
       - name: Set up Docker
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and run tests
+      - name: Build test image
         run: |
-          docker build -t ${{ matrix.service }}-service-test --target test -f services/${{ matrix.service }}/Dockerfile services/${{ matrix.service }}
+          docker build \
+            -t ${{ matrix.service }}-service-test \
+            --target test \
+            -f services/${{ matrix.service }}/Dockerfile \
+            services/${{ matrix.service }}
+
+      - name: Run pytest in container
+        run: |
           docker run --rm ${{ matrix.service }}-service-test
