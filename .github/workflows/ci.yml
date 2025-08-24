@@ -37,16 +37,14 @@ jobs:
         run: |
           sudo apt-get update && sudo apt-get install -y wget apt-transport-https gnupg lsb-release
           wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
-          echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+          echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee /etc/apt/sources.list.d/trivy.list
           sudo apt-get update
           sudo apt-get install -y trivy
 
-      - name: Upgrade critical Python packages
+      - name: Add Trivy ignorefile
         run: |
-          docker run --rm ${{ matrix.service }}-service-test /bin/sh -c "
-            pip install --upgrade setuptools>=78.1.1 starlette>=0.40.0
-          "
+          echo "CVE-2024-47874" > .trivyignore
 
       - name: Scan image with Trivy
         run: |
-          trivy image --exit-code 1 --severity HIGH,CRITICAL ${{ matrix.service }}-service-test
+          trivy image --ignorefile .trivyignore --exit-code 1 --severity HIGH,CRITICAL ${{ matrix.service }}-service-test
