@@ -8,7 +8,9 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+# Upgrade pip + setuptools, then install deps
+RUN pip install --no-cache-dir --upgrade pip setuptools>=78.1.1 && \
+    pip install --no-cache-dir -r requirements.txt
 
 # ------------------------
 # Runtime image for app
@@ -28,5 +30,5 @@ FROM base AS test
 # Make /app discoverable for imports
 ENV PYTHONPATH=/app
 COPY app ./app
-COPY tests ./tests
+COPY tests ./tests  
 CMD ["pytest", "-q", "--disable-warnings", "--maxfail=1"]
