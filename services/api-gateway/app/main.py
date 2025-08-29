@@ -95,3 +95,12 @@ async def payments_root(req: Request):
 @app.api_route("/payments/{pid}", methods=["GET", "PUT", "DELETE"])
 async def payments_by_id(pid: int, req: Request):
     return await _forward(req, PAYMENTS_BASE_URL, f"/payments/{pid}")
+
+
+# -----------------------------
+# Prometheus Metrics
+# -----------------------------
+from prometheus_fastapi_instrumentator import Instrumentator
+
+instrumentator = Instrumentator()
+instrumentator.instrument(app).expose(app)  # Exposes /metrics

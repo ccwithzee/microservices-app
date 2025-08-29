@@ -83,3 +83,11 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
     db.delete(user)
     db.commit()
     return {"message": "User deleted"}
+
+# -----------------------------
+# Prometheus Metrics
+# -----------------------------
+from prometheus_fastapi_instrumentator import Instrumentator
+
+instrumentator = Instrumentator()
+instrumentator.instrument(app).expose(app)  # Exposes /metrics

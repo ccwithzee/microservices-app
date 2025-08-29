@@ -118,3 +118,8 @@ async def refund_payment(payment_id: int):
 @app.get("/healthz")
 async def healthz():
     return {"status": "ok"}
+
+from prometheus_fastapi_instrumentator import Instrumentator
+
+instrumentator = Instrumentator()
+instrumentator.instrument(app).expose(app)  # Exposes /metrics

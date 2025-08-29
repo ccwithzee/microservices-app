@@ -11,3 +11,5 @@ respx==0.21.1
 asgi-lifespan==2.1.0
 # Starlette gets installed automatically by FastAPI (0.38.6)
 setuptools>=78.1.1
+
+prometheus-fastapi-instrumentator==6.0.0

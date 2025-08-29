@@ -84,3 +84,12 @@ async def delete_order(order_id: int):
 @app.get("/healthz")
 async def healthz():
     return {"status": "ok"}
+
+
+# -----------------------------
+# Prometheus Metrics
+# -----------------------------
+from prometheus_fastapi_instrumentator import Instrumentator
+
+instrumentator = Instrumentator()
+instrumentator.instrument(app).expose(app)  # Exposes /metrics
